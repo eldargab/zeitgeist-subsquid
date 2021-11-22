@@ -23,13 +23,14 @@ services:
       - REDIS_URI=redis://redis:6379/0
       - BLOCK_HEIGHT=0 # starting block height
       - TYPES_JSON=types.json
-      - WS_PROVIDER_ENDPOINT_URI=wss://bsr.zeitgeist.pm
+      - WS_PROVIDER_ENDPOINT_URI=ws://node:9944/0
       - DEBUG=hydra-indexer:*
     volumes:
       - ./types.json:/hydra/packages/hydra-indexer/types.json
     depends_on:
       - db
       - redis
+      - node
     command: >
       sh -c "yarn db:bootstrap && yarn start:prod"
 
@@ -60,6 +61,15 @@ services:
     environment:
       REDIS_URI: redis://redis:6379/0
       PORT: 8081
+  
+  node:
+    image: zeitgeistpm/zeitgeist-node:v0.2.0
+    ports:
+      - "9944:9944"
+    command: --dev --ws-external
+    environment:
+      NODE_URI: ws://node:9944/0
+      PORT: 9944
 
   redis:
     image: redis:6.0-alpine
